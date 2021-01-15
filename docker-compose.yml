@@ -1,0 +1,29 @@
+version:          "3.4"
+
+x-env-files:      &env-files
+  env_file:
+    - .env
+
+services:
+  master:
+    image:        mysql/mysql-server:8.0
+    <<:           *env-files
+    networks:
+      - db-mysqlbasic
+    restart:      always
+    volumes:
+      - ./d0:/var/lib/mysql
+    command:      mysqld --default-authentication-plugin=mysql_native_password --server-id=1 --log-bin='mysql-bin-1.log'
+
+  slave:
+    image:        mysql/mysql-server:8.0
+    <<:           *env-files
+    networks:
+      - db-mysqlbasic
+    restart:      always
+    volumes:
+      - ./d1:/var/lib/mysql
+    command:      mysqld --default-authentication-plugin=mysql_native_password --server-id=2 --super_read_only=ON
+
+networks:
+  db-mysqlbasic:
